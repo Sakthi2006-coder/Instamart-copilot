@@ -76,7 +76,7 @@ T0028,C1036,classified_json,fraud,Steady Standard Shoppers,HIGH,security_team,83
 T0100,C0754,classified_json,fraud,Steady Standard Shoppers,HIGH,security_team,83
 T0022,C1160,classified_json,delivery,Steady Standard Shoppers,NORMAL,support_queue,81
 T0082,C0168,classified_json,delivery,Loyal Frequent Shoppers,NORMAL,support_queue,77
-T0127,C0976,classified_json,billing,Steady Standard Shoppers,NORMAL,support_queue,81
+T0127,C0976,budget_exhausted,,Steady Standard Shoppers,NORMAL,human_review,0
 T0162,C0665,flagged_long,,Premium Spenders,NORMAL,human_review,0
 T0109,C1080,budget_exhausted,,Loyal Frequent Shoppers,NORMAL,human_review,0
 T0046,C0442,budget_exhausted,,Steady Standard Shoppers,NORMAL,human_review,0

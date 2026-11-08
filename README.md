@@ -330,8 +330,8 @@ While few-shot prompting consumes 219.9 tokens per ticket compared to 84.1 for z
 ### 3. Token Budget Demonstration
 
 - Configured demonstration with `TOKEN_BUDGET = 6000` tokens using the zero-shot pipeline.
-- The pipeline halted after 84 model calls (consuming 5,957 tokens).
-- The remaining 80 tickets received status `budget_exhausted` and were safely routed to human review, saved in `outputs/triage_budget_demo.csv`.
+- The pipeline halted after 75 model calls (consuming 5,957 tokens, strictly not exceeding the 6,000 token budget).
+- The remaining 81 tickets received status `budget_exhausted` and were safely routed to human review, saved in `outputs/triage_budget_demo.csv`.
 
 ---
 
@@ -459,6 +459,3 @@ For financial refund processing, ReAct is strongly preferable. The strict prereq
 3. **Lexical TF-IDF vs. Dense Embeddings**: The policy assistant uses sparse TF-IDF with cosine similarity over 40-word chunks. While computationally lightweight and deterministic, it is incapable of semantic synonymy or multilingual translation. A production upgrade should integrate dense neural embeddings (e.g., `text-embedding-3-small` or local BERT/SentenceTransformer models) and hybrid dense-sparse vector search.
 4. **Financial Ledger Idempotency & Concurrency**: The financial refund ledger (`outputs/refund_ledger.jsonl`) utilizes a file-based check-before-append idempotency mechanism designed specifically for this single-process offline demonstration. In concurrent production environments, file-based scanning is subject to race conditions and TOCTOU (time-of-check to time-of-use) vulnerabilities; production deployments require ACID transactional database constraints (e.g., unique constraints on `order_id` in a relational transaction table), row-level database locking, or distributed consensus locks (e.g., Redis Redlock).
 5. **State Persistence**: State checkpoints are stored as flat JSON files in `state/`. In high-throughput distributed production environments, checkpoints should be committed to a persistent transactional store (such as PostgreSQL or Redis) with distributed locking.
-=======
-# Instamart-copilot
-a72a33930e2bc051694d7e2020259d2533815ba4

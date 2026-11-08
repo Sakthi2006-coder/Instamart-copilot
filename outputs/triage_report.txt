@@ -62,7 +62,8 @@ Prompt Economic Trade-Off Analysis:
 5. TOKEN BUDGET DEMONSTRATION (TOKEN_BUDGET = 6,000)
 -------------------------------------------------------------------------------------
   - Configured Demo Budget : 6000 tokens
-  - Budget Exhausted Rows  : 80 tickets routed to human_review (Reference: >= 1)
+  - Cumulative Tokens Used : 5957 tokens (Budget: <= 6000) -> PASS
+  - Budget Exhausted Rows  : 81 tickets routed to human_review (Reference: >= 1)
   - Saved Demo Path        : C:\Users\acer\Desktop\instamart-copilot\outputs\triage_budget_demo.csv
 
 6. PRODUCTION TRIAGE ROUTING SUMMARY (outputs/triage_results.csv)
