@@ -1,4 +1,3 @@
-HEAD
 # Instamart Customer Intelligence & Support Copilot
 
 ## Overview
