@@ -1,0 +1,83 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+PART C: SUPPORT TICKET TRIAGE & GUARDRAILS VALIDATION REPORT
+=====================================================================================
+
+1. INPUT GUARDRAILS & PII REDACTION AUDIT (164 TOTAL TICKETS)
+-------------------------------------------------------------------------------------
+  - Total Tickets Ingested      : 164
+  - Skipped Empty Tickets       : 4 (Reference: 4) -> PASS
+  - Flagged Long Tickets (>400) : 4 (Reference: 4, Tokens: [734, 734, 734, 734]) -> PASS
+  - Eligible Tickets for Model  : 156 (Reference: 156) -> PASS
+  - PII Substitutions (Email)   : 55 (Reference: 55) -> PASS
+  - PII Substitutions (Phone)   : 91 (Reference: 91) -> PASS
+  - PII Substitutions (Order ID): 132 (Reference: 132) -> PASS
+  - Total PII Substitutions     : 278 (Reference: 278) -> PASS
+  - Post-Redaction Leakage Check: 0 unredacted email, phone, or order ID patterns remain.
+  - User Message Isolation      : Model receives ONLY the redacted ticket text string.
+
+2. RESILIENT CALL RETRY PERFORMANCE (TRANSIENT FAILURE RECOVERY)
+-------------------------------------------------------------------------------------
+  - Transient Errors Encountered: 19 (Reference: 19)
+  - Successfully Recovered via Retry: 19 / 19 (100% recovery)
+  - Permanent Failures: 0
+  - Retry Wait Duration Bounds (n=0): 0.0450s to 0.0575s (BASE_DELAY=0.05s * 2^0 * uniform[0.9, 1.15])
+  - Sample Retry Log Lines (outputs/triage_retry_log.txt):
+    * ticket_id=T0002 | retry_number=0 | wait=0.0530s | error=503 server busy
+    * ticket_id=T0116 | retry_number=0 | wait=0.0453s | error=503 server busy
+    * ticket_id=T0153 | retry_number=0 | wait=0.0484s | error=503 server busy
+
+3. OUTPUT VALIDATION STATUS BREAKDOWN (156 ELIGIBLE TICKETS)
+-------------------------------------------------------------------------------------
+  - classified_json          : 135 (Reference: 135) -> PASS
+  - classified_keyword       : 12 (Reference: 12) -> PASS
+  - flagged_invalid_output   : 9 (Reference: 9) -> PASS
+  - Total Classified Tickets : 147 (Reference: 147)
+
+4. ZERO-SHOT VS FEW-SHOT COMPARISON
+-------------------------------------------------------------------------------------
+Metric                           Zero-Shot Prompt         Few-Shot Prompt          Reference Targets
+-------------------------------------------------------------------------------------
+Classified Tickets               147                      147                      147 tickets
+Correct Classifications          126                      147                      126 / 147
+Accuracy (%)                     85.71%                   100.00%                   85.7% vs 100.0%
+Total Tokens Consumed            12364                    32332                    -
+Tokens per Classified Ticket     84.1                     219.9                     -
+
+Zero-Shot Confusion Matrix (Rows: True Category, Columns: Predicted Category):
+Predicted Category  billing  delivery  technical  fraud
+True Category                                          
+billing                  38         0          0      0
+delivery                  0        36          0      0
+technical                10         0         29      0
+fraud                    11         0          0     23
+
+Zero-Shot Errors Breakdown:
+  - 11 Fraud tickets mispredicted as Billing (due to words like 'charged', 'refund')
+  - 10 Technical tickets mispredicted as Billing (due to words like 'order', 'coupon')
+
+Prompt Economic Trade-Off Analysis:
+  While the few-shot prompt consumes 219.9 tokens per classified ticket compared to 84.1 tokens for zero-shot (a ~2.6x token increase), it achieves perfect 100% accuracy (147/147) by completely eliminating severe misclassifications where fraud tickets were misrouted to billing. In support operations, misrouting fraud tickets to standard billing queues delays account security lockouts and causes catastrophic financial loss. Therefore, the marginal cost of additional context tokens is heavily outweighed by the elimination of critical safety misroutings.
+
+5. TOKEN BUDGET DEMONSTRATION (TOKEN_BUDGET = 6,000)
+-------------------------------------------------------------------------------------
+  - Configured Demo Budget : 6000 tokens
+  - Budget Exhausted Rows  : 80 tickets routed to human_review (Reference: >= 1)
+  - Saved Demo Path        : C:\Users\acer\Desktop\instamart-copilot\outputs\triage_budget_demo.csv
+
+6. PRODUCTION TRIAGE ROUTING SUMMARY (outputs/triage_results.csv)
+-------------------------------------------------------------------------------------
+  - Total Processed Rows   : 164 (Preserves 164 ticket order)
+  - Routing Destinations   :
+    * support_queue   : 102 tickets
+    * security_team   :  34 tickets
+    * human_review    :  17 tickets
+    * premium_desk    :  11 tickets
+  - Priority Levels        :
+    * NORMAL          : 119 tickets
+    * HIGH            :  45 tickets
+
+Validation & Auditing Transparency:
+  - Automatically Rule-Validated: 147 tickets (135 JSON with valid schema and 12 single-keyword extractions).
+  - Routed to Human Review: 17 tickets (4 empty, 4 long, and 9 flagged invalid output due to out-of-domain categories or ambiguous responses).
+=====================================================================================

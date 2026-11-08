@@ -1,0 +1,142 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+TASK A5: PART 1 & 2 - SQL ANALYSIS & VALIDATION REPORT
+=====================================================================================
+Database: C:\Users\acer\Desktop\instamart-copilot\data\instamart.db
+Queries File: C:\Users\acer\Desktop\instamart-copilot\sql\queries.sql
+
+-------------------------------------------------------------------------------------
+Q1: WHERE then HAVING
+-------------------------------------------------------------------------------------
+Result count: 30 customers (Reference: 30)
+Top 5 customers with spend > 8000 on completed orders > 500:
+customer_id  total_large_spend
+      C0693           13776.55
+      C0082           12317.70
+      C0743           12266.85
+      C0525           12241.30
+      C0291           12150.70
+
+-------------------------------------------------------------------------------------
+Q2: Three-table join
+-------------------------------------------------------------------------------------
+Result count: 30 rows | Grand Total: INR 2,998,668.80
+Largest Cell: Bengaluru / Electronics = INR 233,909.45
+
+Revenue by City & Category (First 10 rows):
+     city      category   revenue
+Bengaluru         Dairy  87075.05
+Bengaluru   Electronics 233909.45
+Bengaluru       Grocery 110915.65
+Bengaluru Personal Care  20193.85
+Bengaluru        Snacks  71549.40
+  Chennai         Dairy  78301.80
+  Chennai   Electronics 195508.80
+  Chennai       Grocery  93817.45
+  Chennai Personal Care  27675.40
+  Chennai        Snacks  68325.70
+
+-------------------------------------------------------------------------------------
+Q3: Scalar subquery
+-------------------------------------------------------------------------------------
+Result count: 11 products (Reference: 11)
+Products priced above catalogue average:
+product_id        product_name      category  price_inr
+      P038   Bluetooth Speaker   Electronics       1999
+      P033    Wireless Earbuds   Electronics       1499
+      P034 Power Bank 10000mAh   Electronics       1299
+      P036   Phone Charger 20W   Electronics        799
+      P037          Smart Bulb   Electronics        599
+      P040    Memory Card 64GB   Electronics        549
+      P032       Sunscreen 50g Personal Care        399
+      P030   Body Lotion 400ml Personal Care        350
+      P039         Phone Stand   Electronics        349
+      P014          Ghee 500ml         Dairy        340
+      P035      USB-C Cable 1m   Electronics        299
+
+-------------------------------------------------------------------------------------
+Q4: LEFT JOIN
+-------------------------------------------------------------------------------------
+Result count: 25 customers (Reference: 25)
+First 10 customers with no completed order:
+customer_id      city signup_date
+      C0029 Hyderabad  2024-03-21
+      C0037      Pune  2024-01-23
+      C0093      Pune  2025-03-16
+      C0115 Bengaluru  2024-04-11
+      C0120 Bengaluru  2024-03-08
+      C0151      Pune  2024-09-13
+      C0354   Chennai  2024-01-13
+      C0363   Chennai  2024-10-11
+      C0412     Delhi  2024-01-05
+      C0461 Bengaluru  2024-12-29
+
+-------------------------------------------------------------------------------------
+Q5: Common Table Expression (CTE)
+-------------------------------------------------------------------------------------
+Result count: 550 customers (Reference: 550)
+Average Benchmark Completed Spend: INR 2,552.06 (Reference: INR 2,552.06)
+Top 5 above-average spenders:
+customer_id  total_spend  benchmark_avg
+      C0693     14766.55        2552.06
+      C0291     13742.60        2552.06
+      C0488     13187.50        2552.06
+      C0082     12856.20        2552.06
+      C0743     12730.05        2552.06
+
+-------------------------------------------------------------------------------------
+Q6: Ranking window functions
+-------------------------------------------------------------------------------------
+Top customer per city:
+  - Bengaluru   : Customer C0082 with spend INR 12,856.20
+  - Chennai     : Customer C0930 with spend INR 10,151.40
+  - Delhi       : Customer C0291 with spend INR 13,742.60
+  - Hyderabad   : Customer C0743 with spend INR 12,730.05
+  - Mumbai      : Customer C0693 with spend INR 14,766.55
+  - Pune        : Customer C0426 with spend INR 10,377.10
+
+Rows where RANK() != ROW_NUMBER(): 8 (Reference: 8)
+Reason for difference: Ties in total_spend cause RANK() to produce identical rank numbers and skip subsequent ranks, whereas ROW_NUMBER() arbitrarily breaks ties to assign distinct sequential integers.
+
+-------------------------------------------------------------------------------------
+Q7: Running total
+-------------------------------------------------------------------------------------
+Total Daily Rows: 183 (2025-04-01 to 2025-09-30)
+Final Cumulative Revenue: INR 2,998,668.80 (Reference: INR 2,998,668.80)
+
+First 5 days running total:
+       day  revenue  cumulative_revenue
+2025-04-01 16876.50            16876.50
+2025-04-02 19854.55            36731.05
+2025-04-03 28048.35            64779.40
+2025-04-04 14249.60            79029.00
+2025-04-05 16031.50            95060.50
+
+Last 5 days running total:
+       day  revenue  cumulative_revenue
+2025-09-26 17190.85          2942763.75
+2025-09-27 13689.95          2956453.70
+2025-09-28 12689.85          2969143.55
+2025-09-29 14022.15          2983165.70
+2025-09-30 15503.10          2998668.80
+
+=====================================================================================
+SQL CHECKPOINT VALIDATION SUMMARY
+=====================================================================================
+Query & Category          Checkpoint Description                 Status    
+-------------------------------------------------------------------------------------
+Q1 (WHERE & HAVING)       Customer count == 30                   PASS      
+Q2 (Three-table JOIN)     Row count == 30                        PASS      
+Q2 (Three-table JOIN)     Total Revenue == INR 2,998,668.80      PASS      
+Q2 (Three-table JOIN)     Largest Cell == BLR / Electronics (233,909.45) PASS      
+Q3 (Scalar subquery)      Above-average products == 11           PASS      
+Q4 (LEFT JOIN)            Zero-completed-order customers == 25   PASS      
+Q5 (CTE Benchmark)        Above-average customers == 550         PASS      
+Q5 (CTE Benchmark)        Average customer spend == INR 2,552.06 PASS      
+Q6 (Ranking Window)       Top customer per city matches reference PASS      
+Q6 (Ranking Window)       Rows where RANK != ROW_NUMBER == 8     PASS      
+Q7 (Running Total)        Daily rows == 183                      PASS      
+Q7 (Running Total)        Final cumulative revenue == INR 2,998,668.80 PASS      
+-------------------------------------------------------------------------------------
+OVERALL STATUS: ALL 10 SQL CHECKPOINTS PASSED PERFECTLY
+=====================================================================================

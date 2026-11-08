@@ -1,0 +1,66 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+PART B, TASK B1: CUSTOMER SEGMENTATION & RFM CLUSTERING REPORT
+=====================================================================================
+
+1. RFM TABLE VALIDATION (SNAPSHOT: 2025-10-01 00:00:00)
+-------------------------------------------------------------------------------------
+RFM Metric                Computed           Reference          Status    
+---------------------------------------------------------------------------
+Customer Count            1175               1175               PASS      
+Recency Minimum           0                  0                  PASS      
+Recency Median            19.0               19.0               PASS      
+Recency Maximum           180                180                PASS      
+Frequency Mean            9.46               9.46               PASS      
+Frequency Maximum         33                 33                 PASS      
+Monetary Mean             2552.06            2552.06            PASS      
+Monetary Maximum          14766.55           14766.55           PASS      
+
+2. K-MEANS CLUSTERING GRID (K=2..8, n_init=10, random_state=42)
+-------------------------------------------------------------------------------------
+K     Inertia      Ref Inertia (±5%)    Silhouette   Ref Sil (±0.05)    Status  
+------------------------------------------------------------------------------
+2     1820.8       1820.8               0.465        0.465              PASS    
+3     1268.2       1268.2               0.445        0.445              PASS    
+4     743.1        743.1                0.526        0.526              PASS    
+5     617.4        617.4                0.480        0.481              PASS    
+6     503.2        503.2                0.482        0.482              PASS    
+7     408.5        408.5                0.416        0.416              PASS    
+8     366.5        366.5                0.412        0.412              PASS    
+
+3. FINAL K SELECTION & BUSINESS JUSTIFICATION
+-------------------------------------------------------------------------------------
+Selected K: 4 (Optimal balance between quantitative clustering metrics and actionable business segmentation)
+Why K=8 inertia is lower than K=2 yet cannot alone pick K:
+  Mathematically, inertia (the within-cluster sum of squared errors) is monotonically decreasing with respect to K because adding more cluster centroids always reduces or preserves the Euclidean distance to the nearest centroid, trivially reaching zero when K equals sample size N. However, minimizing inertia alone overfits the data into micro-clusters that lack practical business utility; at K=4, the silhouette score peaks at 0.526 and the elbow bend clearly emerges, providing four distinct, operationally actionable customer cohorts.
+
+4. SEGMENT PROFILE TABLE (K=4)
+-------------------------------------------------------------------------------------
+Seg ID   Segment Name                 Count    Mean Rec (d)   Mean Freq    Mean Mon (INR)   Premium?  
+------------------------------------------------------------------------------------------------
+0        Steady Standard Shoppers     436      28.9           3.8          1057.62          NO        
+1        Premium Spenders             138      24.1           6.8          7129.70          YES       
+2        Loyal Frequent Shoppers      419      8.8            19.4         3410.02          NO        
+3        Lapsed / At-Risk Occasionals 182      109.0          2.2          685.99           NO        
+
+Recommended Strategic Actions by Segment:
+  - [0] Steady Standard Shoppers: Cross-sell bundle promotions across Personal Care and Snacks to increase basket size and order frequency.
+  - [1] Premium Spenders: VIP concierge routing, premium support prioritization, and exclusive early access to high-ticket electronics.
+  - [2] Loyal Frequent Shoppers: Subscription loyalty perks, free quick delivery vouchers, and weekly pantry replenishment reminders.
+  - [3] Lapsed / At-Risk Occasionals: Targeted win-back reactivation campaigns with high-discount coupons on previous favorite categories.
+
+5. PCA 2D PROJECTION (SCALED RFM MATRIX)
+-------------------------------------------------------------------------------------
+  - PC1 Explained Variance Ratio : 0.6343 (Reference: ~0.634, Tol: ±0.02)
+  - PC2 Explained Variance Ratio : 0.2180 (Reference: ~0.218, Tol: ±0.02)
+  - Total Explained Variance     : 0.8523 (Reference: ~0.852, Tol: ±0.02)
+
+6. OUTPUT DATASET VALIDATION (outputs/customer_segments.csv)
+-------------------------------------------------------------------------------------
+  - Output File Exists                           : True (Expected: True) -> PASS
+  - Total Customer Rows == 1,175                 : True (Expected: True) -> PASS
+  - Unique Customers == 1,175 (No duplicates)    : True (Expected: True) -> PASS
+  - Exactly One Segment Assigned                 : True (Expected: True) -> PASS
+  - Premium Segment Exclusively Marked           : True (Expected: True) -> PASS
+  - Premium Customer Count                       : 138 (Expected: 138) -> PASS
+=====================================================================================

@@ -1,0 +1,72 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+TASK A1: RAW DATA AUDIT REPORT
+=====================================================================================
+
+1. DATASET PROFILES (SHAPE, DATA TYPES & MISSING/BLANK VALUES)
+-------------------------------------------------------------------------------------
+
+--- customers.csv (Shape: 1200 rows, 5 columns) ---
+Column               Raw Dtype       Missing/Blank   Missing %    Notes
+-------------------------------------------------------------------------------------
+customer_id          str             0               0.00        % 
+city                 str             0               0.00        % 
+signup_date          str             0               0.00        % 
+age                  str             61              5.08        % 6 out-of-bounds (10-100)
+gender               str             30              2.50        % 
+
+--- products.csv (Shape: 40 rows, 4 columns) ---
+Column               Raw Dtype       Missing/Blank   Missing %    Notes
+-------------------------------------------------------------------------------------
+product_id           str             0               0.00        % 
+product_name         str             0               0.00        % 
+category             str             0               0.00        % 
+price_inr            int64           0               0.00        % 
+
+--- orders.csv (Shape: 13084 rows, 9 columns) ---
+Column               Raw Dtype       Missing/Blank   Missing %    Notes
+-------------------------------------------------------------------------------------
+order_id             str             0               0.00        % 
+customer_id          str             0               0.00        % 
+product_id           str             0               0.00        % 
+quantity             int64           0               0.00        % 
+order_ts             str             0               0.00        % 
+status               str             0               0.00        % 
+discount_pct         int64           0               0.00        % 
+order_amount         str             0               0.00        % 120 non-numeric values ('N/A' or 'error')
+delivery_minutes     str             2541            19.42       % 106 negative values (< 0)
+
+=====================================================================================
+2. SPECIFIC AUDIT METRICS & REFERENCE CHECKPOINT COMPARISON
+=====================================================================================
+Category     Metric Description                       Computed   Reference  Status    
+-------------------------------------------------------------------------------------
+ORDERS       Raw orders.csv rows                      13084      13084      PASS      
+ORDERS       Exact duplicate rows                     119        119        PASS      
+ORDERS       Rows with pending status                 656        656        PASS      
+ORDERS       Distinct order_id count                  12309      12309      PASS      
+ORDERS       Non-numeric order_amount entries         120        120        PASS      
+ORDERS       Negative delivery_minutes (< 0)          106        106        PASS      
+ORDERS       Blank delivery_minutes                   2541       2541       PASS      
+CUSTOMERS    Blank age values                         61         61         PASS      
+CUSTOMERS    Age values outside 10-100                6          6          PASS      
+CUSTOMERS    Distinct raw city spellings              24         24         PASS      
+CUSTOMERS    Distinct non-blank raw gender spellings  10         10         PASS      
+CUSTOMERS    Blank gender values                      30         30         PASS      
+-------------------------------------------------------------------------------------
+OVERALL AUDIT STATUS: ALL 12 REFERENCE CHECKPOINTS PASSED PERFECTLY
+
+=====================================================================================
+3. DETAILED ANOMALY BREAKDOWN
+=====================================================================================
+Customers City Spellings Found (24 total variations across 6 canonical metro cities):
+  ' Bengaluru ', ' Chennai ', ' Delhi ', ' Hyderabad ', ' Mumbai ', ' Pune ', 'BENGALURU', 'Bengaluru', 'CHENNAI', 'Chennai', 'DELHI', 'Delhi', 'HYDERABAD', 'Hyderabad', 'MUMBAI', 'Mumbai', 'PUNE', 'Pune', 'bengaluru', 'chennai', 'delhi', 'hyderabad', 'mumbai', 'pune'
+
+Customers Gender Spellings Found (10 non-blank variations):
+  'F', 'FEMALE', 'Female', 'M', 'MALE', 'Male', 'f', 'female', 'm', 'male'
+
+Customers Out-of-Bounds Age Values (6 planted impossible ages):
+  [{'customer_id': 'C0011', 'age': '280'}, {'customer_id': 'C0111', 'age': '-4'}, {'customer_id': 'C0211', 'age': '0'}, {'customer_id': 'C0311', 'age': '150'}, {'customer_id': 'C0411', 'age': '999'}, {'customer_id': 'C0511', 'age': '200'}]
+
+Orders Planted Non-Numeric Amount Types:
+  {'error': 67, 'N/A': 53}

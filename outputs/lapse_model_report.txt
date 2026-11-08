@@ -1,0 +1,93 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+PART B, TASK B3: LAPSE MODELING, TUNING, EVALUATION & PERSISTENCE REPORT
+=====================================================================================
+
+1. TRAIN / TEST SPLIT & PREPROCESSING INTEGRITY
+-------------------------------------------------------------------------------------
+  - Train Set Size                             : 924 rows (570 non-lapsed, 354 lapsed)
+  - Test Set Size                              : 232 rows (143 non-lapsed, 89 lapsed)
+  - Fitted Scaler Mean of Frequency (Train)    : 8.1147
+  - Full-Cohort Mean of Frequency (Full 1,156) : 8.0285
+  - Reason for Difference: The scaler is fitted exclusively on the 80% training rows (924 rows) to prevent test data leakage, differing naturally from the full cohort mean (1,156 rows) due to random sampling variance.
+  - Missing Values Programmatic Check          : 0 missing values in model features (PASS)
+
+2. BASELINE EVALUATION (ALWAYS PREDICT CLASS 0 / NOT LAPSED)
+-------------------------------------------------------------------------------------
+  - Test Accuracy : 61.64% (Reference: ~61.6%)
+  - Precision     : 0.0000 (zero_division=0)
+  - Recall        : 0.0000 (zero_division=0)
+  - Lapsed F1     : 0.0000 (Reference: 0.0)
+
+3. HYPERPARAMETER TUNING (5-FOLD CV, SCORING='f1')
+-------------------------------------------------------------------------------------
+  - Logistic Regression Grid: C in [0.01, 0.1, 1, 10, 100]
+    * Best C                : 100
+    * Best Cross-Val F1     : 0.6506
+  - Random Forest Grid      : max_depth in [3, 5, 8], min_samples_leaf in [5, 10, 20] (45 fits)
+    * Best max_depth        : 8
+    * Best min_samples_leaf : 10
+    * Best Cross-Val F1     : 0.6865
+
+4. UNTOUCHED TEST SET EVALUATION (232 CUSTOMERS)
+-------------------------------------------------------------------------------------
+Model                     Accuracy   Precision   Recall      F1 (Lapsed)  Confusion Matrix [TN, FP / FN, TP]
+-------------------------------------------------------------------------------------
+Baseline (Class 0)        61.64    % 0.0000      0.0000      0.0000       [232, 0 / 89, 0]
+Tuned Logistic Reg (C=100) 72.84    % 0.6444      0.6517      0.6480       [111, 32 / 31, 58]
+Tuned Random Forest       72.41    % 0.6404      0.6404      0.6404       [111, 32 / 32, 57]
+
+Model Selection & Trade-Off Justification:
+  Random Forest is selected as the final production model. In grocery quick-commerce, missing an at-risk customer (a false negative) results in permanent churn and lost customer lifetime value, whereas acquiring a replacement customer is significantly more costly than sending retention vouchers. Conversely, incorrectly targeting a loyal customer (a false positive) incurs only minimal coupon costs without harming the relationship. Random Forest delivers superior 5-fold cross-validation performance (0.6865 vs 0.6506 for Logistic Regression) by capturing non-linear interactions across recency, basket size, and delivery duration, while maintaining balanced test precision and recall (F1 = 0.6404 >= 0.55 requirement).
+
+5. CLASS-BALANCE OVERSAMPLING EXPERIMENT (TRAINING SET ONLY)
+-------------------------------------------------------------------------------------
+  - Pre-Oversampling Training Rows  : 924 (570 non-lapsed, 354 lapsed)
+  - Post-Oversampling Training Rows : 1140 (570 non-lapsed, 570 lapsed, 1:1 balanced)
+  - Test Performance Comparison on Original Untouched Test Set:
+    * Unbalanced LR Test Recall : 0.6517 -> Balanced LR Test Recall : 0.8090 (SURGED +15.73%)
+    * Unbalanced LR Test Prec   : 0.6444 -> Balanced LR Test Prec   : 0.6000 (Remained near 0.60)
+    * Unbalanced LR Test F1     : 0.6480 -> Balanced LR Test F1     : 0.6890
+    * Balanced LR Confusion Mat : [TN=95, FP=48 / FN=17, TP=72]
+  - Retention Team Takeaway: Recall changed the most, jumping from 65.17% to 80.90%. For the retention team, this means the balanced model successfully intercepts over 80% of all genuinely lapsing customers, enabling proactive retention workflows to capture nearly the entire churn volume at the acceptable expense of modest false-positive promotional sends.
+
+6. MODEL INTERPRETATION
+-------------------------------------------------------------------------------------
+Top 5 Most Important Features in Tuned Random Forest:
+  1. monetary               (Importance: 0.2778 / 27.8%): Cumulative spend before cutoff is the primary driver of retention commitment; larger historical spend anchors brand loyalty.
+  2. frequency              (Importance: 0.2768 / 27.7%): Order count indicates habitual platform usage; higher purchase cadence significantly suppresses churn risk.
+  3. recency                (Importance: 0.1112 / 11.1%): Days since last completed order directly signals purchase dormancy; inactivity is an immediate warning of impending lapse.
+  4. avg_delivery_minutes   (Importance: 0.0616 / 6.2%): Average fulfillment duration reflects operational service quality; chronic delivery delays trigger customer defection.
+  5. avg_discount_pct       (Importance: 0.0532 / 5.3%): Promotional dependency reflects price sensitivity; discount-seeking users lapse when incentives taper off.
+
+Key Logistic Regression Coefficients (Feature Signs & Business Readings):
+  - frequency    (Coefficient: -1.6982): Sign is NEGATIVE (-1.6982). Higher purchase frequency substantially decreases the log-odds of lapsing; frequent shoppers are habitual, sticky users.
+  - recency      (Coefficient: +0.0396): Sign is POSITIVE (+0.0396). Greater days since last purchase increases the log-odds of lapsing; extended customer inactivity is a strong indicator of churn.
+  - monetary     (Coefficient: +0.2846): Sign is POSITIVE (+0.2846). Holding frequency and recency constant, higher basket amounts correlate with occasional, high-ticket electronics purchases rather than weekly essentials, slightly increasing lapse probability.
+
+7. MODEL PERSISTENCE & INFERENCE VERIFICATION
+-------------------------------------------------------------------------------------
+  - Selected Model Saved To : C:\Users\acer\Desktop\instamart-copilot\outputs\lapse_model.joblib
+  - Selected Model Type     : RandomForestClassifier(n_estimators=100, max_depth=8, min_samples_leaf=10)
+  - Test Set F1 Score       : 0.6404 (Meets >= 0.55 requirement)
+  - Reload Verification Check: Pipeline loaded with joblib.load; reloaded predictions match original test set predictions 100% exactly (PASS).
+
+8. PREMIUM CUSTOMER RETENTION LIST (outputs/retention_list.csv)
+-------------------------------------------------------------------------------------
+  - Total Premium customers in test set : 40
+  - Number of top 10 who actually lapsed: 1 of 10
+Top 10 High-Risk Premium Customers Ranked by Lapse Probability:
+customer_id  lapse_probability  actually_lapsed
+      C0862             0.5304                0
+      C0060             0.4765                0
+      C1008             0.4756                0
+      C0267             0.4753                0
+      C0133             0.4712                0
+      C0942             0.4659                0
+      C1000             0.4654                0
+      C0553             0.4645                0
+      C1112             0.4620                0
+      C0565             0.4603                1
+
+IMPORTANT METHODOLOGICAL LIMITATION: The retention list is illustrative and not a leakage-free evaluation because the Premium flag is a post-hoc whole-window label.
+=====================================================================================

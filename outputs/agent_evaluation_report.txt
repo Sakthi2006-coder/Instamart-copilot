@@ -1,0 +1,63 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+PART D, TASKS 5-8: REFUND AGENT EVALUATION & SAFETY REPORT
+=====================================================================================
+
+1. BENCHMARK SCENARIO RESULTS (outputs/agent_runs.jsonl)
+-------------------------------------------------------------------------------------
+ID   Expected Status  Actual Status             Refund (INR)   Calls   Tokens  
+-------------------------------------------------------------------------------------
+S1   REFUND           REFUND                    128.25         5       910     
+S2   REFUND           REFUND                    135.00         5       910     
+S3   ESCALATE         ESCALATE                  1999.00        5       897     
+S4   DENIED           DENIED                    0.00           4       610     
+S5   DENIED           DENIED                    0.00           3       337     
+S6   NOT_FOUND        NOT_FOUND                 0.00           2       72      
+S7   FALLBACK         FALLBACK_MAX_ITERATIONS   0.00           6       3000    
+-------------------------------------------------------------------------------------
+
+2. SAFE STOP CONDITION DEMONSTRATIONS (TASK 7)
+-------------------------------------------------------------------------------------
+  [7A] Maximum Iterations (S7) : status=FALLBACK_MAX_ITERATIONS, calls=6, tokens=3000 -> PASS
+  [7B] Token Limit Demo (S1)   : status=FALLBACK_TOKEN_LIMIT, calls=3, tokens=354 -> PASS
+  [7C] Timeout Demo (S1)       : status=FALLBACK_TIMEOUT, calls=0, tokens=0 -> PASS
+
+3. CHECKPOINTING & CRASH RECOVERY DEMONSTRATION (TASK 8)
+-------------------------------------------------------------------------------------
+  Pre-crash tools executed    : ['get_order', 'search_policy']
+  Full execution tool sequence: ['get_order', 'search_policy', 'calculate_refund', 'issue_refund']
+  Sequence Check              : Exactly 4 distinct tools without repetition -> PASS
+  Resumed Final Status        : REFUND -> PASS
+  Resumed Final Answer        : REFUND: INR 128.25 issued. -> PASS
+
+3B. CRASH-REPLAY FINANCIAL IDEMPOTENCY TEST
+-------------------------------------------------------------------------------------
+  Financial transaction replay: issue_refund attempted after un-checkpointed transaction -> BLOCKED DUPLICATE -> PASS
+  Ledger Integrity            : Exactly 1 record preserved; original timestamp intact -> PASS
+
+4. REFUND LEDGER SUMMARY (outputs/refund_ledger.jsonl)
+-------------------------------------------------------------------------------------
+  - [2026-11-08T14:22:44.841200+00:00] issue_refund       ORD-100048 INR 128.25
+  - [2026-11-08T14:22:44.864115+00:00] issue_refund       ORD-100067 INR 135.00
+  - [2026-11-08T14:22:44.889488+00:00] escalate_to_human  ORD-100145 INR 1999.00
+-------------------------------------------------------------------------------------
+
+5. FOCUSED TOOL-BOUNDARY SAFETY & IDEMPOTENCY TESTS
+-------------------------------------------------------------------------------------
+  - 1. Cancelled order refund attempt (ORD-100025)         : PASS
+    Observation: {'error': "Order ORD-100025 has status 'cancelled'; only completed orders can be refunded", 'refund_inr': 0.0, 'status': 'rejected'}
+  - 2. Unknown order refund attempt (ORD-999999)           : PASS
+    Observation: {'error': 'Order ORD-999999 not found in database', 'refund_inr': 0.0, 'status': 'rejected'}
+  - 3. Refund of INR 1000 or less (calculate_refund)       : PASS
+    Observation: {'refund_inr': 128.25, 'eligible': True, 'requires_escalation': False}
+  - 4. Refund above INR 1000 auto-issuance block           : PASS
+    Observation: {'error': 'Refund amount INR 1999.00 exceeds automatic limit of INR 1000; must be escalated to human lead', 'refund_inr': 0.0, 'status': 'rejected'}
+  - 5. Valid high-value escalation (ORD-100145)            : PASS
+    Observation: {'refund_inr': 1999.0, 'status': 'escalated'}
+  - 6. Duplicate refund attempt idempotency                : PASS
+    Observation: {'refund_inr': 128.25, 'status': 'already_issued', 'idempotent': True}
+  - 7. Valid ordinary refund (ORD-100067)                  : PASS
+    Observation: {'refund_inr': 135.0, 'status': 'issued'}
+  - 8. Input hardening (NaN/Inf/-Inf/Non-numeric/Missing/Overflow): PASS
+    Observation: {'refund_inr': 0.0, 'eligible': False, 'requires_escalation': False, 'error': 'Order amount cannot be NaN or infinite'}
+=====================================================================================

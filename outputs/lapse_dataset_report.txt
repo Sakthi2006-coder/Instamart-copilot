@@ -1,0 +1,56 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+PART B, TASK B2: LAPSE DATASET & PROBLEM DEFINITION REPORT
+=====================================================================================
+
+1. COHORT & TARGET DEFINITION (CUTOFF: 2025-09-01)
+-------------------------------------------------------------------------------------
+Metric                                 Computed           Reference          Status    
+------------------------------------------------------------------------------------
+Cohort Size (Pre-cutoff completed)     1156               1156               PASS      
+Total Lapsed Customers (y=1)           443                443                PASS      
+Total Non-Lapsed Customers (y=0)       713                713                PASS      
+Lapsed Percentage (%)                  38.32%             38.32%             PASS      
+
+2. TRAIN / TEST SPLIT VERIFICATION (test_size=0.2, stratify=y, seed=42)
+-------------------------------------------------------------------------------------
+Split Dimension                        Computed           Reference          Status    
+------------------------------------------------------------------------------------
+Training Set Rows                      924                924                PASS      
+Test Set Rows                          232                232                PASS      
+Training Not Lapsed (y=0)              570                570                PASS      
+Training Lapsed (y=1)                  354                354                PASS      
+Test Not Lapsed (y=0)                  143                143                PASS      
+Test Lapsed (y=1)                      89                 89                 PASS      
+
+3. FEATURE DEFINITIONS & DATA QUALITY
+-------------------------------------------------------------------------------------
+Feature Name              Type            Dtype           Missing Count  
+----------------------------------------------------------------------
+recency                   Numeric         int64           0              
+frequency                 Numeric         int64           0              
+monetary                  Numeric         float64         0              
+avg_discount_pct          Numeric         float64         0              
+cancellation_rate         Numeric         float64         0              
+avg_delivery_minutes      Numeric         float64         0              
+age                       Numeric         float64         0              
+tenure_days               Numeric         int64           0              
+favourite_category        Categorical     str             0              
+city                      Categorical     str             0              
+gender                    Categorical     str             0              
+
+4. LEAKAGE AUDIT & CONFIRMATIONS
+-------------------------------------------------------------------------------------
+  [x] Pre-cutoff temporal boundary enforced: ZERO orders dated >= 2025-09-01 used for feature extraction.
+  [x] September orders used EXCLUSIVELY to determine ground truth target label (lapsed).
+  [x] Task B1 cluster labels (segment_id, segment_name, is_premium) STRICTLY EXCLUDED from features.
+  [x] Customer ID identifier excluded from feature matrix X (retained only in CSV metadata).
+  [x] Encoders/Scalers untouched: No fit or transform performed across the full cohort.
+
+5. NAIVE BASELINE EVALUATION (ALWAYS PREDICT NOT-LAPSED, CLASS 0)
+-------------------------------------------------------------------------------------
+  - Accuracy          : 61.64% (Reference: ~61.6%) -> PASS
+  - Precision (Lapsed): 0.0000 (Zero division handled) -> PASS
+  - Recall (Lapsed)   : 0.0000 (Zero division handled) -> PASS
+  - F1 Score (Lapsed) : 0.0000 (Reference: 0.0) -> PASS
+=====================================================================================

@@ -1,0 +1,36 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+PART D, TASK 4B: ZERO-OVERLAP ABLATION STUDY REPORT
+=====================================================================================
+
+1. CHUNKING COMPARISON (OVERLAP=10 VS OVERLAP=0)
+-------------------------------------------------------------------------------------
+  - Overlap 10 Total Chunks : 15 chunks
+  - Overlap 0 Total Chunks  : 13 chunks
+  - Overlap 0 Chunk Counts  : {'delivery_policy.txt': 3, 'escalation_policy.txt': 2, 'payment_policy.txt': 3, 'privacy_policy.txt': 2, 'refund_policy.txt': 3}
+
+2. PERFORMANCE COMPARISON ON 14 EVALUATION QUESTIONS
+-------------------------------------------------------------------------------------
+Evaluation Metric                             Overlap = 10         Overlap = 0         
+-------------------------------------------------------------------------------------
+Expected Document Retrieved                   12/12                   12/12                  
+Expected Fact Present in Answer               12/12                   10/12                  
+Unanswerable Fallback Count                   2/2                    2/2                   
+
+3. ROOT-CAUSE ANALYSIS OF ZERO-OVERLAP FAILURE
+-------------------------------------------------------------------------------------
+  - Failed Question   : 'What delivery time makes a completed order eligible for a full refund?'
+  - Target Document   : refund_policy.txt
+  - Expected Fact     : 'more than 45 minutes'
+  - Retrieved Sources : ['refund_policy.txt', 'refund_policy.txt', 'privacy_policy.txt']
+  - Generated Answer  : 'receives a full refund of the order amount.'
+  - Failure Mechanism : With zero overlap (stride = 40 words), the context sentence containing the answer fact ('more than 45 minutes') was severed directly across a chunk boundary. Because the sentence's key subject and predicate terms fell into different adjacent chunks, individual chunks lacked sufficient cohesive lexical stem overlap with the question prompt, causing the model to either retrieve an irrelevant chunk or select a truncated sentence.
+  - Failed Question   : 'How soon is money returned when a payment fails but is deducted?'
+  - Target Document   : payment_policy.txt
+  - Expected Fact     : '48 hours'
+  - Retrieved Sources : ['payment_policy.txt', 'refund_policy.txt', 'privacy_policy.txt']
+  - Generated Answer  : 'If a payment fails but money is deducted, the amount is returned automatically
+ 
+1000 must be approved by a human support lead before money is returned.'
+  - Failure Mechanism : With zero overlap (stride = 40 words), the context sentence containing the answer fact ('48 hours') was severed directly across a chunk boundary. Because the sentence's key subject and predicate terms fell into different adjacent chunks, individual chunks lacked sufficient cohesive lexical stem overlap with the question prompt, causing the model to either retrieve an irrelevant chunk or select a truncated sentence.
+=====================================================================================

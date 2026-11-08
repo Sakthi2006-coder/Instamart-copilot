@@ -1,0 +1,71 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+TASK A5: PART 3 - PANDAS CROSS-CHECK & EXPLORATORY DATA ANALYSIS (EDA)
+=====================================================================================
+
+-------------------------------------------------------------------------------------
+A. CROSS-CHECK Q2: PIVOT TABLE (CITY x CATEGORY REVENUE)
+-------------------------------------------------------------------------------------
+category       Dairy  Electronics    Grocery  Personal Care     Snacks       Total
+city                                                                              
+Bengaluru   87075.05    233909.45  110915.65       20193.85   71549.40   523643.40
+Chennai     78301.80    195508.80   93817.45       27675.40   68325.70   463629.15
+Delhi      117271.70    158549.10  112658.05       23471.50   90879.45   502829.80
+Hyderabad   83731.00    228913.10  109475.40       24800.05   81670.35   528589.90
+Mumbai      75209.85    214738.40   78970.15       38018.00   72122.10   479058.50
+Pune        90349.55    187629.25  108456.60       34275.15   80207.50   500918.05
+Total      531938.95   1219248.10  614293.30      168433.95  464754.50  2998668.80
+
+Pandas Grand Total : INR 2,998,668.80
+SQL Grand Total    : INR 2,998,668.80
+Cross-Check Status : PASS - MATCHES TO THE PENNY
+
+-------------------------------------------------------------------------------------
+B. CITY ANALYSIS: GROUPBY & NAMED AGGREGATIONS
+-------------------------------------------------------------------------------------
+City            Total Revenue (INR)    Mean Order (INR)   Order Count 
+----------------------------------------------------------------------
+Bengaluru               523,643.40           276.47        1,894
+Chennai                 463,629.15           272.72        1,700
+Delhi                   502,829.80           243.62        2,064
+Hyderabad               528,589.90           284.95        1,855
+Mumbai                  479,058.50           297.00        1,613
+Pune                    500,918.05           252.48        1,984
+
+-------------------------------------------------------------------------------------
+C. DESCRIPTIVE STATISTICS: COMPLETED ORDER AMOUNT
+-------------------------------------------------------------------------------------
+  - Mean                   : INR 269.91 (Reference: INR 269.91)
+  - Median                 : INR 135.00 (Reference: INR 135.00)
+  - Skewness               : 4.61 (Reference: ~4.61, highly right-skewed)
+  - 25th Percentile (Q1)   : INR 64.80 (Reference: INR 64.80)
+  - 75th Percentile (Q3)   : INR 297.00 (Reference: INR 297.00)
+  - Interquartile Range    : INR 232.20
+  - Lower 1.5xIQR Fence    : INR -283.50 (Outliers below: 0)
+  - Upper 1.5xIQR Fence    : INR 645.30 (Reference: INR 645.30)
+  - Outliers Above Fence   : 897 orders (Reference: 897 orders)
+
+-------------------------------------------------------------------------------------
+D. CORRELATION MATRIX (COMPLETED ORDERS)
+-------------------------------------------------------------------------------------
+                  order_amount  discount_pct  quantity  delivery_minutes
+order_amount            1.0000       -0.0951    0.0873           -0.0031
+discount_pct           -0.0951        1.0000   -0.0004           -0.0098
+quantity                0.0873       -0.0004    1.0000           -0.0126
+delivery_minutes       -0.0031       -0.0098   -0.0126            1.0000
+
+Largest correlation in absolute value:
+  - Pair  : order_amount and discount_pct
+  - Value : -0.0951 (Reference: approximately -0.095)
+
+-------------------------------------------------------------------------------------
+E. WRITTEN INTERPRETATION (176 WORDS - MAXIMUM 200 WORDS)
+-------------------------------------------------------------------------------------
+This dataset represents transactional order fulfillment across six Indian metro cities for Swiggy Instamart over six months.
+
+The order amount distribution is highly right-skewed (skewness 4.61), where the mean (INR 269.91) is double the median (INR 135.00). Most orders consist of daily low-cost essentials in Grocery, Dairy, and Snacks (Q1 = INR 64.80, Q3 = INR 297.00).
+
+Using the 1.5xIQR rule (IQR = INR 232.20), the upper fence is INR 645.30, identifying 897 upper outliers (about 8.1% of completed orders) and 0 lower outliers. These high-value outliers are driven by premium electronic devices (e.g., Bluetooth speakers, power banks) and bulk personal care purchases.
+
+Linear relationships among numerical features are weak. The strongest absolute correlation is between order amount and discount percentage (r = -0.0951), followed by order amount and quantity (r = +0.0873). Delivery duration shows virtually zero correlation with order size (r = -0.0031). Crucially, these modest statistical correlations do not establish causation: promotional discounts or delivery speeds do not mechanically drive basket values without considering confounding factors like category-specific promotions and customer purchasing archetypes.
+=====================================================================================

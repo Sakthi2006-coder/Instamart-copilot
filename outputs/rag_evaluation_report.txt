@@ -1,0 +1,73 @@
+=====================================================================================
+INSTAMART CUSTOMER INTELLIGENCE & SUPPORT COPILOT
+PART D, TASKS 1-4: POLICY RAG ASSISTANT EVALUATION REPORT
+=====================================================================================
+
+1. POLICY DOCUMENT CHUNKING (CHUNK_SIZE=40, OVERLAP=10)
+-------------------------------------------------------------------------------------
+  - Total Policy Chunks Created : 15 (Reference: 15) -> PASS
+  - Per-Document Chunk Breakdown:
+    * delivery_policy.txt     : 3 chunks (Reference: 3) -> PASS
+    * escalation_policy.txt   : 3 chunks (Reference: 3) -> PASS
+    * payment_policy.txt      : 3 chunks (Reference: 3) -> PASS
+    * privacy_policy.txt      : 2 chunks (Reference: 2) -> PASS
+    * refund_policy.txt       : 4 chunks (Reference: 4) -> PASS
+
+2. TF-IDF VECTORIZATION & RETRIEVAL REFERENCE CHECK
+-------------------------------------------------------------------------------------
+  - Reference Query : 'refund policy late delivery'
+  - Top 3 Retrieved Chunks:
+    1. [refund_policy.txt] (Score: 0.2719) -> order is delivered in more than 45 minutes, the customer receives a fu...
+    2. [refund_policy.txt] (Score: 0.2514) -> Refund Policy. A refund can be requested only for orders whose status ...
+    3. [refund_policy.txt] (Score: 0.2454) -> late-delivery refund is paid. Refunds up to INR 1000 are approved auto...
+  - Check Result    : All 3 chunks originate from 'refund_policy.txt' -> PASS
+
+3. THEORETICAL FOUNDATION: TF-IDF & LIMITATIONS
+-------------------------------------------------------------------------------------
+  1. Term Frequency (TF): Measures the local prominence of a term within an individual chunk, normalizing for chunk length so longer passages are not unfairly favored.
+  2. Inverse Document Frequency (IDF): Measures the global rarity and discriminatory power of a term across the entire chunk corpus, downweighting ubiquitous filler words and upweighting terms unique to specific policies.
+  3. Key Limitation for Policy Retrieval: TF-IDF relies exclusively on surface lexical overlap. It fails to match synonymous queries where users express identical semantic intent using distinct vocabulary (e.g., 'reimbursement' vs 'refund', or 'courier' vs 'rider'), leading to zero similarity scores when exact word forms do not align.
+
+4. POLICY QUESTION-ANSWERING EVALUATION (data/raw/policy_eval.csv)
+-------------------------------------------------------------------------------------
+  - Total Benchmark Questions Evaluated    : 14
+  - Answerable Expected Document Retrieval : 12/12 (Reference: 12/12) -> PASS
+  - Answerable Expected Fact Accuracy      : 12/12 (Reference: 12/12) -> PASS
+  - Unanswerable Fallback Rate             : 2/2 (Reference: 2/2) -> PASS
+
+Detailed Benchmark Results (Overlap = 10):
+Q#   Question                                           Exp Doc              Fact Match   Status
+-----------------------------------------------------------------------------------------------
+1    What delivery time makes a completed order eligi   refund_policy.txt    True         PASS
+2    Who must approve a refund above INR 1000?          refund_policy.txt    True         PASS
+3    How many days do I have to raise a refund reques   refund_policy.txt    True         PASS
+4    What is the delivery fee on small orders?          delivery_policy.txt  True         PASS
+5    On orders of what value is delivery free?          delivery_policy.txt  True         PASS
+6    Why does the electronics delivery need a one tim   delivery_policy.txt  True         PASS
+7    Is cash on delivery available for a large order?   payment_policy.txt   True         PASS
+8    How soon is money returned when a payment fails    payment_policy.txt   True         PASS
+9    Can wallet balance be refunded as cash?            payment_policy.txt   True         PASS
+10   When are delivery addresses deleted from active    privacy_policy.txt   True         PASS
+11   How fast must a fraud ticket reach the security    escalation_policy.txt True         PASS
+12   After how many steps must an automated assistant   escalation_policy.txt True         PASS
+13   What is the favourite colour of the company masc   NONE                 False        PASS
+14   Who won the cricket world cup final?               NONE                 False        PASS
+
+Sample Grounded Answers:
+  [Q1] Question : What delivery time makes a completed order eligible for a full refund?
+       Expected : more than 45 minutes
+       Answer   : order is delivered in more than 45 minutes, the customer receives a full refund of the order amount.
+       Sources  : ['refund_policy.txt', 'refund_policy.txt', 'privacy_policy.txt']
+  [Q2] Question : Who must approve a refund above INR 1000?
+       Expected : human support lead
+       Answer   : A refund above INR 1000 must be approved by a human support lead before money is returned.
+       Sources  : ['refund_policy.txt', 'refund_policy.txt', 'refund_policy.txt']
+  [Q11] Question : How fast must a fraud ticket reach the security team?
+       Expected : within 2 hours
+       Answer   : A ticket about fraud or an unauthorized transaction is marked high priority and sent to the security team within 2 hours.
+       Sources  : ['escalation_policy.txt', 'escalation_policy.txt', 'escalation_policy.txt']
+  [Q13] Question : What is the favourite colour of the company mascot?
+       Expected : Fallback (I could not find...)
+       Answer   : I could not find that information in the policy documents.
+       Sources  : ['delivery_policy.txt', 'refund_policy.txt', 'delivery_policy.txt']
+=====================================================================================
